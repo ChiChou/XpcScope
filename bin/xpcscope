@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import frida
+import sys
+
+import asyncio
+
+from xpcscope.ui.capture import CaptureWindow
+
+from PySide6.QtAsyncio import run
+from PySide6.QtWidgets import QApplication, QMessageBox
+
+
+def get_target():
+    return frida.get_local_device().attach('example')
+
+
+async def main():
+    window = CaptureWindow()
+    window.show()
+
+    try:
+        with window.loading('Attaching to target...'):
+            session = await asyncio.get_event_loop().run_in_executor(None, get_target)
+            await window.attach(session)
+
+    except Exception as e:
+        QMessageBox.critical(window, "Error", str(e))
+        window.close()
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    run(main())

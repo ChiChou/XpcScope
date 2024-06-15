@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file alias="start">lucide/play.svg</file>
+    <file alias="stop">lucide/square.svg</file>
+    <file alias="restart">lucide/rotate-ccw.svg</file>
+    <file alias="exit">lucide/log-out.svg</file>
+</qresource>
+</RCC>

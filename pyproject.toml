@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "xpcscope"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.13"
+frida = "^16.3.3"
+PySide6 = "^6.6.2"
+
+[tool.poetry.group.dev.dependencies]
+frida-tools = "^12.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
