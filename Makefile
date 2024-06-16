@@ -11,7 +11,7 @@ run:
 	poetry run python bin/xpcscope
 
 agent:
-	frida-compile src/frida/agent/index.ts > src/frida/_agent.js
+	poetry run frida-compile src/frida/agent/index.ts > src/frida/_agent.js
 
 prepare: install res agent
 	echo
