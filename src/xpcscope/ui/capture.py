@@ -84,7 +84,8 @@ class CaptureWindow(QMainWindow):
             if not self._session:
                 return
 
-            await self._script.exports_async.stop()
+            if not self._script.is_destroyed:
+                await self._script.exports_async.stop()
             await asyncio.get_event_loop().run_in_executor(None, self._session.detach)
 
             self._session = None

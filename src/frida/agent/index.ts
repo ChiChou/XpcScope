@@ -9,7 +9,7 @@ function stop() {
 }
 
 rpc.exports = {
-  nameAndPid: () => [Process.mainModule.name, Process.id] as [string, number],
+  nameAndPid: () => [Process.mainModule ? Process.mainModule.name : Process.enumerateModules()[0].name, Process.id] as [string, number],
   connections: () => ObjC.chooseSync(ObjC.classes.OS_xpc_connection).map(conn => conn.debugDescription().toString()),
   services(domain: string) {
     return domain === 'system' ? system() : user();
