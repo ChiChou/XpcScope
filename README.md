@@ -13,14 +13,14 @@ Here is the setup instructions on macOS.
 
 ```
 brew install python3  # requires python >=3.10
-brew install pipx  # since python 3.11, directly install package will yield an externally-managed-environment error
-pipx install poetry # the real venv manager we need
+brew install poetry  # for python < 3.11, pip3 install poetry
 ```
 
-Then setup the virtual env:
+Then setup and activate the virtual env:
 
 ```
 poetry install
+poetry shell
 ```
 
 Build frida agent:
@@ -35,7 +35,9 @@ make agent
 Build resource files:
 
 ```
-make res  # or manually run the command in Makefile
+make res
+
+# or manually run the command in Makefile
 # pyside6-rcc -o src/xpcscope/res.py assets/resources.qrc
 ```
 
