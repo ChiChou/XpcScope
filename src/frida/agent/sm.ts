@@ -2,7 +2,7 @@ function loadFramework() {
   const prefixes = ['', 'Private'];
   for (const prefix of prefixes) {
     const bundle = ObjC.classes.NSBundle.bundleWithPath_(`/System/Library/${prefix}Frameworks/ServiceManagement.framework`)
-    if (bundle.load())
+    if (bundle && bundle.load())
       return;
   }
 
