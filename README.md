@@ -46,6 +46,7 @@ make res
 First modify the `get_target` function in `bin/xpcscope` for your target.
 
 ```
+poetry shell
 python3 bin/xpcscope
 ```
 
