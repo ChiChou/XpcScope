@@ -6,10 +6,10 @@ from PySide6.QtWidgets import QErrorMessage, QMainWindow, QProgressDialog
 from PySide6.QtCore import QSettings, QSize, Qt, Signal, QObject
 from PySide6.QtGui import QIcon
 
-import xpcscope.res
-
 from xpcscope.core import load_script
 from xpcscope.ui.listview import ListView
+
+__import__('xpcscope.res')
 
 
 class AppendItemSignal(QObject):
