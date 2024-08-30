@@ -7,7 +7,7 @@ class hexdump:
         last_bs, last_line = None, None
         for i in range(0, len(self.buf), 16):
             bs = bytearray(self.buf[i : i + 16])
-            line = "{:08x}  {:23}  {:23}  |{:16}|".format(
+            line = "{:08x}  {:23}  {:23}  {:16}".format(
                 self.off + i,
                 " ".join(("{:02x}".format(x) for x in bs[:8])),
                 " ".join(("{:02x}".format(x) for x in bs[8:])),
