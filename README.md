@@ -10,7 +10,7 @@ Written in python, should support Windows and Linux as well.
 
 Here is the setup instructions on macOS.
 
-```
+```shell
 brew install python3                # requires python >=3.10
 python3 -m vent env                 # initialize virtual environment
 source env/bin/activate             # active venv shell
@@ -19,7 +19,7 @@ pip install -r requirements.txt     # install all dependencies
 
 Build frida agent:
 
-```
+```shell
 make prepare
 
 # on Windows or systems without make, manually the commands in Makefile
@@ -33,7 +33,7 @@ I am too lazy to adapt the cli options from frida, so simply write your attach l
 
 An example script is provided in `target.example.py`
 
-```
+```shell
 python3 bin/xpcscope target.example.py
 ```
 
