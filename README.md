@@ -6,47 +6,44 @@ Yet another xpc sniffer
 
 Written in python, should support Windows and Linux as well.
 
-* python >=3.10, < 3.13
-* poetry
+* python >=3.10
 
 Here is the setup instructions on macOS.
 
 ```
-brew install python3  # requires python >=3.10
-brew install poetry  # for python < 3.11, pip3 install poetry
-```
-
-Then setup and activate the virtual env:
-
-```
-poetry install
-poetry shell
+brew install python3                # requires python >=3.10
+python3 -m vent env                 # initialize virtual environment
+source env/bin/activate             # active venv shell
+pip install -r requirements.txt     # install all dependencies
 ```
 
 Build frida agent:
 
 ```
-make agent
+make prepare
 
-# on Windows or systems without make, manually the command in Makefile
+# on Windows or systems without make, manually the commands in Makefile
 # frida-compile src\frida\agent\index.ts > src\frida\_agent.js
-```
-
-Build resource files:
-
-```
-make res
-
-# or manually run the command in Makefile
 # pyside6-rcc -o src/xpcscope/res.py assets/resources.qrc
 ```
 
 ## Run
 
-First modify the `get_target` function in `bin/xpcscope` for your target.
+I am too lazy to adapt the cli options from frida, so simply write your attach logic in `target.py` in current directory.
+
+An example script is provided in `target.example.py`
 
 ```
-python3 bin/xpcscope
+python3 bin/xpcscope target.example.py
 ```
 
 ![screenshot](assets/screenshot.png)
+
+## Trouble Shooting
+
+### ModuleNotFoundError: No module named 'xpcscope'
+
+```shell
+export PYTHONPATH=src
+```
+

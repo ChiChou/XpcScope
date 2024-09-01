@@ -1,6 +1,8 @@
 /node_modules/
 _agent.js
 
+target.py
+
 .ccls-cache/
 
 # need to manually generate the code before running

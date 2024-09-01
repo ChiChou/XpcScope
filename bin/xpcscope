@@ -2,8 +2,9 @@
 
 import frida
 import sys
-
 import asyncio
+
+from typing import Callable
 
 from xpcscope.ui.capture import CaptureWindow
 
@@ -11,11 +12,7 @@ from PySide6.QtAsyncio import run
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 
-def get_target():
-    return frida.get_local_device().attach('example')
-
-
-async def main():
+async def main(get_target: Callable[[], frida.core.Session]):
     window = CaptureWindow()
     window.show()
 
@@ -30,5 +27,18 @@ async def main():
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    run(main())
+    # I am too lazy to parse frida parameters
+    # so you can use a script to attach to the target
+
+    if sys.argv == 2:
+        loader = sys.argv[1]
+    else:
+        loader = 'target'
+
+    import os
+    # execute get function in loader python script
+    sys.path.append(os.path.dirname(loader))
+    get_session = getattr(__import__(os.path.basename(loader)), 'get')
+
+    app = QApplication()
+    run(main(get_session))
