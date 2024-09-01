@@ -14,12 +14,12 @@ from xpcscope.hexdump import hexdump
 def monospace():
     system = platform.system()
     mapping = {
-        'Windows': 'Consolas',
-        'Darwin': 'Monaco',
-        'Linux': 'DejaVu Sans Mono'
+        'Windows': ('Consolas', 14),
+        'Darwin': ('Monaco', 12),
+        'Linux': ('DejaVu Sans Mono', 14)
     }
 
-    return mapping.get(system, 'monospace')
+    return QFont(*mapping.get(system, 'monospace'))
 
 
 class ListView(QWidget):
@@ -105,13 +105,13 @@ class MessageDetail(QWidget):
         model = QStandardItemModel()
         tree = QTreeView()
         tree.setHeaderHidden(True)
-        tree.setFont(QFont(monospace(), 12))
+        tree.setFont(monospace())
         tree.setModel(model)
         tree.selectionModel().selectionChanged.connect(self._on_select_node)
 
         text = QTextEdit("")
         text.setReadOnly(True)
-        text.setFont(QFont(monospace(), 12))
+        text.setFont(monospace())
         text.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
         splitter.addWidget(tree)
