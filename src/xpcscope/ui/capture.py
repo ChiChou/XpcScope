@@ -135,7 +135,7 @@ class CaptureWindow(QMainWindow):
         self.settings.setValue("geometry", self.saveGeometry())
         self.settings.setValue("state", self.saveState())
 
-        if self._session:
+        if self._session and not self._script.is_destroyed:
             event.ignore()
             asyncio.ensure_future(self.detach())
         else:
