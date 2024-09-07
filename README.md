@@ -14,7 +14,7 @@ Here is the setup instructions on macOS.
 brew install python3                # requires python >=3.10
 python3 -m vent env                 # initialize virtual environment
 source env/bin/activate             # active venv shell
-pip install -r requirements.txt     # install all dependencies
+pip install -e .                    # install all dependencies
 ```
 
 Build frida agent:
