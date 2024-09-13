@@ -22,7 +22,8 @@ Build frida agent:
 ```shell
 make prepare
 
-# on Windows or systems without make, manually the commands in Makefile
+# on Windows or systems without make, manually type the following commands from Makefile
+#
 # frida-compile src\frida\agent\index.ts > src\frida\_agent.js
 # pyside6-rcc -o src/xpcscope/res.py assets/resources.qrc
 ```
@@ -34,7 +35,7 @@ I am too lazy to adapt the cli options from frida, so simply write your attach l
 An example script is provided in `target.example.py`
 
 ```shell
-python3 bin/xpcscope target.example.py
+python3 bin/xpcscope target.py
 ```
 
 ![screenshot](assets/screenshot.png)
