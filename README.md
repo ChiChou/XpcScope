@@ -12,7 +12,7 @@ Here is the setup instructions on macOS.
 
 ```shell
 brew install python3                # requires python >=3.10
-python3 -m vent env                 # initialize virtual environment
+python3 -m venv env                 # initialize virtual environment
 source env/bin/activate             # active venv shell
 pip install -e .                    # install all dependencies
 ```
