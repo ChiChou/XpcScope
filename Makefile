@@ -5,7 +5,7 @@ res:
 	pyside6-rcc -o $(RESPY) $(RES)
 
 install:
-	pip install -r requirements.txt
+	pip install -e .
 
 run:
 	python bin/xpcscope
