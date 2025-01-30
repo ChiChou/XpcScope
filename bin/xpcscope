@@ -1,29 +1,53 @@
 #!/usr/bin/env python3
 
 import frida
-import sys
-import asyncio
 
+import json
+import sys
+
+from pathlib import Path
 from typing import Callable
 
-from xpcscope.ui.capture import CaptureWindow
-
-from PySide6.QtAsyncio import run
-from PySide6.QtWidgets import QApplication, QMessageBox
+from xpcscope.pcap import Pcap
 
 
-async def main(get_target: Callable[[], frida.core.Session]):
-    window = CaptureWindow()
-    window.show()
+def main(get_target: Callable[[], frida.core.Session]):
+    session = get_target()
+
+    source = Path(__file__).parent.parent / 'src' / 'frida' / '_agent.js'
+    try:
+        with source.open('r', encoding='utf8') as f:
+            script = session.create_script(f.read())
+    except FileNotFoundError:
+        sys.stderr.write(f'frida agent {source} not found\n')
+        return
+
+    pcap = Pcap()
+
+    def on_message(message: dict, data: bytes):
+        if message['type'] == 'send':
+            metadata = json.dumps(message['payload'])
+            joint = metadata.encode('utf8') + data
+            ok = pcap.write(joint, len(data))
+            if not ok:
+                sys.exit(1)
+        else:
+            sys.stderr.write(f'{message}\n')
+
+    script.on('message', on_message)
+    script.load()
+
+    script.exports_sync.start()
+    # name, pid = script.exports_sync.name_and_pid()
+    # sys.stderr.write(f'attached to {name}({pid})\n')
 
     try:
-        with window.loading('Attaching to target...'):
-            session = await asyncio.get_event_loop().run_in_executor(None, get_target)
-            await window.attach(session)
-
-    except Exception as e:
-        QMessageBox.critical(window, "Error", str(e))
-        window.close()
+        input('Press enter to exit\n')
+    except KeyboardInterrupt:
+        pass
+    finally:
+        script.unload()
+        session.detach()
 
 
 if __name__ == '__main__':
@@ -40,5 +64,4 @@ if __name__ == '__main__':
     sys.path.append(os.path.dirname(loader))
     get_session = getattr(__import__(os.path.basename(loader)), 'get')
 
-    app = QApplication()
-    run(main(get_session))
+    main(get_session)

@@ -12,8 +12,8 @@ Here is the setup instructions on macOS.
 
 ```shell
 brew install python3                # requires python >=3.10
-python3 -m venv env                 # initialize virtual environment
-source env/bin/activate             # active venv shell
+python3 -m venv .venv               # initialize virtual environment
+source .venv/bin/activate           # active venv shell
 pip install -e .                    # install all dependencies
 ```
 
@@ -25,7 +25,6 @@ make prepare
 # on Windows or systems without make, manually type the following commands from Makefile
 #
 # frida-compile src\frida\agent\index.ts > src\frida\_agent.js
-# pyside6-rcc -o src/xpcscope/res.py assets/resources.qrc
 ```
 
 ## Run
@@ -35,10 +34,8 @@ I am too lazy to adapt the cli options from frida, so simply write your attach l
 An example script is provided in `target.example.py`
 
 ```shell
-python3 bin/xpcscope target.py
+python3 bin/xpcscope target.py | wireshark -k -i -
 ```
-
-![screenshot](assets/screenshot.png)
 
 ## Trouble Shooting
 

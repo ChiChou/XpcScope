@@ -8,7 +8,6 @@
     "prepare": "npm run build",
     "build": "frida-compile agent/index.ts -o _agent.js -c",
     "watch": "frida-compile agent/index.ts -o _agent.js -w",
-    "res": "pyside6-rcc -o src/xpcscope/res.py assets/resources.qrc"
   },
   "devDependencies": {
     "@types/frida-gum": "^18.3.1",
