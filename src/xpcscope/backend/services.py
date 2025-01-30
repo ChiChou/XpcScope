@@ -2,7 +2,7 @@ import plistlib
 from ctypes import c_ulong, cdll, c_void_p, c_byte
 
 
-def jobs(domain_system: bool = False):
+def asbytes(domain_system: bool = False):
     cf = cdll.LoadLibrary(
         "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")
     cf.CFRelease.argtypes = [c_void_p]
@@ -34,4 +34,18 @@ def jobs(domain_system: bool = False):
     serialized = bytes((c_byte * size).from_address(byteptr))
     cf.CFRelease(jobs)
 
-    return plistlib.loads(serialized)
+    return serialized
+
+
+def jobs():
+    return plistlib.loads(asbytes())
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], 'wb') as fp:
+            fp.write(asbytes())
+    else:
+        import pprint
+        pprint.pprint(jobs())
