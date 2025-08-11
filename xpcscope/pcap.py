@@ -35,26 +35,30 @@ class Pcap:
 
         self.output.write(pcap_header)
 
-    def write(self, packet: bytes, original_len: int):
+    def write(self, packet: bytes, data_len: int):
         ts = time.time()
         sec = int(ts)
         ns = int((ts - sec) * 1_000_000_000)
+
+        arp_header = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x07'
+        payload_len = len(arp_header) + len(packet)
 
         FMT = "@ I I I I"
         pcap_packet = struct.pack(
             FMT,
             sec,
             ns,
-            len(packet),
-            original_len,
+            payload_len, # pinfo.caplen
+            payload_len + data_len, # pinfo.len
         )
 
         try:
             self.output.write(pcap_packet)
+            self.output.write(arp_header)
             self.output.write(packet)
+            self.output.flush()
         except BrokenPipeError:
             sys.stderr.write('Broken pipe, WireShark exited?\n')
             return False
 
-        self.output.flush()
         return True

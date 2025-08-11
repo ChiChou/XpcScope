@@ -48,9 +48,10 @@ def tool(get_target: Callable[[], frida.core.Session]):
 
     def on_message(message: dict, data: bytes):
         if message['type'] == 'send':
+            not_null_data = data if data is not None else b''
             metadata = json.dumps(message['payload'])
-            joint = metadata.encode('utf8') + data
-            ok = pcap.write(joint, len(data))
+            joint = metadata.encode('utf8') + not_null_data
+            ok = pcap.write(joint, len(not_null_data))
             if not ok:
                 sys.exit(1)
 
@@ -71,7 +72,7 @@ def tool(get_target: Callable[[], frida.core.Session]):
     # sys.stderr.write(f'attached to {name}({pid})\n')
 
     try:
-        input('Press enter to exit\n')
+        input()
     except KeyboardInterrupt:
         pass
     finally:

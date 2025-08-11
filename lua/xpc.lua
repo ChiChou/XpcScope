@@ -1,4 +1,4 @@
-json = require "json.lua"
+json = require "json/json"
 
 local xpc = Proto("xpc", "XPC")
 local binary = ProtoField.bytes("xpc.data", "xpc_data")
@@ -43,11 +43,18 @@ function visit(elem, parent, data_storage)
 end
 
 function xpc.dissector(buffer, pinfo, tree)
-    local data = buffer(pinfo.len)
-    local info = json.decode(buffer(0, pinfo.caplen - pinfo.len):string())
+    local raw_data_len = pinfo.len - pinfo.caplen
+    local breakpoint = buffer:len() - raw_data_len
+    local json_str = buffer(0, breakpoint):string()
+    local data = buffer(breakpoint, raw_data_len)
+
+    local info = json.decode(json_str)
     local root = info["message"]
     local msg = tree:add("Message" .. ": " .. desc(root))
     visit(root, msg, data)
+
+    pinfo.cols.protocol = "XPC"
+    pinfo.cols.info = root["description"]
 
     local bt = info["backtrace"]
     if bt then
@@ -57,3 +64,22 @@ function xpc.dissector(buffer, pinfo, tree)
         end
     end
 end
+
+local source_pid          = ProtoField.int32("xpc.sourcepid", "Source PID", base.DEC)
+local dest_pid            = ProtoField.int32("xpc.destpid", "Destination PID", base.DEC)
+
+frida_log_protocol        = Proto("Frida", "Frida Log Protocol")
+frida_log_protocol.fields = {
+    source_pid, dest_pid
+}
+
+function frida_log_protocol.dissector(buffer, pinfo, tree)
+    pinfo.src = Address.ip('127.0.0.1')
+    pinfo.dst = Address.ip('127.0.0.1')
+
+    local subtree = tree:add(frida_log_protocol, buffer(), "Frida Log Protocol Data")
+    xpc.dissector(buffer():tvb(), pinfo, subtree)
+end
+
+local tcp_port = DissectorTable.get("ethertype")
+tcp_port:add(0x807, frida_log_protocol)
