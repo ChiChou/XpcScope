@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xpcscope"
+version = "0.1.0"
+description = "Yet another XPC sniffer"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "frida>=17.2.15",
+]
+
+[project.scripts]
+xpcscope = "xpcscope.main:cli"
+
+[tool.setuptools.packages.find]
+exclude = ["agent*", "tests*", "examples*"]

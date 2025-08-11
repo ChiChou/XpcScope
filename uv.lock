@@ -1,0 +1,47 @@
+version = 1
+revision = 1
+requires-python = ">=3.10"
+
+[[package]]
+name = "frida"
+version = "17.2.15"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/16/dc4c30bcca68e5485a02099e1edb3987c0cdbf73e47d9bcf43e491d2b6ec/frida-17.2.15.tar.gz", hash = "sha256:224cc022c0c424052b494de16f2aa61ed19b6fd4c27d6d322e229b976e8f2a80", size = 925077 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/89/31755b4dab64d4722f8623a8e3673ac91cad67c596421f51a037dca215f1/frida-17.2.15-cp37-abi3-macosx_10_13_x86_64.whl", hash = "sha256:3c686d8789e6c02602e2c9aa7e538db92e02eb88974b6c5804239094d61a4d1a", size = 23144799 },
+    { url = "https://files.pythonhosted.org/packages/b4/b9/71342078f050292960fc0b11566241bbdaabafaaea93dd2b2a531868e43b/frida-17.2.15-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:8acad322d254a46808fb590d7ad02191fcdacc42a87ecc4bcd96cc94932a9f17", size = 32372109 },
+    { url = "https://files.pythonhosted.org/packages/d6/46/626d751bcee64ee586884e378af423c4b24bb6742ce7600b510c97fd818e/frida-17.2.15-cp37-abi3-manylinux1_i686.whl", hash = "sha256:abc51dc62b968c916a76a4f75f153629f1078820c66500fb1faf494123179a53", size = 20436543 },
+    { url = "https://files.pythonhosted.org/packages/a5/10/ec3b625e276f385c602676739e60989ad80bfa8be84222b5feee03a2ad64/frida-17.2.15-cp37-abi3-manylinux1_x86_64.whl", hash = "sha256:01f5ba0d605cc00e9472fe7481c1569b719554479c933aa07465710e5e1899b5", size = 32427496 },
+    { url = "https://files.pythonhosted.org/packages/46/af/e3fccb25217be3828f4ef9c9a230c475b72485dd1c26131beb46a5335531/frida-17.2.15-cp37-abi3-manylinux2014_aarch64.whl", hash = "sha256:caa8b8c89ba868cddbe6b474ef457c98f373a04c0410fa712769808a2bc0308d", size = 21298911 },
+    { url = "https://files.pythonhosted.org/packages/7e/37/acd299de93b3c2b938e617db684dffeb82d230d35b0ed8f8c4f8eae75d0f/frida-17.2.15-cp37-abi3-manylinux2014_armv7l.whl", hash = "sha256:6fee2cf64c2ef1bba3645d244f2084d48634b6fb8f9d1d1e028b3a2570a4d35d", size = 19287883 },
+    { url = "https://files.pythonhosted.org/packages/5f/ba/515126d75a5cc93e6ed5febc5c0f6087b0ad008a8ee96eda25f7fbf410f1/frida-17.2.15-cp37-abi3-manylinux_2_17_aarch64.whl", hash = "sha256:e445a62089328e50f4b9343899852336b7aa24d9c7ca5b4a6be69c42d95bc2fb", size = 21298912 },
+    { url = "https://files.pythonhosted.org/packages/44/d4/c67b9975d1773f8e056270af4aa8a12960b48dd31281898dd397c8832eb1/frida-17.2.15-cp37-abi3-manylinux_2_17_armv7l.whl", hash = "sha256:6656a96b3c19cad9d91e0840caa68b792b04f98959e70fa198455c27010dc342", size = 19287887 },
+    { url = "https://files.pythonhosted.org/packages/4e/5f/c0ab4e4fc0600e08022815908d9f1b55548b1f4202d53208d22d6b8dbda6/frida-17.2.15-cp37-abi3-manylinux_2_5_i686.whl", hash = "sha256:eaf502117aed2b5be6feeb14e1a765f3627482db8c89ffcfe72615d2055e1ab9", size = 20436546 },
+    { url = "https://files.pythonhosted.org/packages/85/ac/f765e3ade0b59ac8d3ba63fea3902ca290ddc0ccf53aabd16f18b7503a20/frida-17.2.15-cp37-abi3-manylinux_2_5_x86_64.whl", hash = "sha256:a121ad9485437a12e6089ae5ca2b1cb246bb0602847b6a5111dbabec83208c37", size = 32427498 },
+    { url = "https://files.pythonhosted.org/packages/34/a9/3234b41b17d91c535bbc77a16908a228eab76c8c552b97c7fddff8bbd461/frida-17.2.15-cp37-abi3-win32.whl", hash = "sha256:b41268f3b35208a226a4bbb3797692dfa9187ce28e8b00e497b8bdca5b002ea3", size = 26670776 },
+    { url = "https://files.pythonhosted.org/packages/b6/85/e4fc8872a852445e463b00e9d2f30f49a2433aeb06bc26a73276f4c41f65/frida-17.2.15-cp37-abi3-win_amd64.whl", hash = "sha256:18038888bd133000499985900c540e0e70b3c098b6ee505f8946dda45ba31fba", size = 41754795 },
+    { url = "https://files.pythonhosted.org/packages/35/bd/e409cc0a50fab0211d9f4f438391d60a5fba20cb95060b6d89174894cd0e/frida-17.2.15-cp37-abi3-win_arm64.whl", hash = "sha256:10e9ddb709f070ea402098d25edc84449a0a6c69316e9558edc1144c608dcbda", size = 51644281 },
+]
+
+[[package]]
+name = "typing-extensions"
+version = "4.14.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/98/5a/da40306b885cc8c09109dc2e1abd358d5684b1425678151cdaed4731c822/typing_extensions-4.14.1.tar.gz", hash = "sha256:38b39f4aeeab64884ce9f74c94263ef78f3c22467c8724005483154c26648d36", size = 107673 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/00/d631e67a838026495268c2f6884f3711a15a9a2a96cd244fdaea53b823fb/typing_extensions-4.14.1-py3-none-any.whl", hash = "sha256:d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76", size = 43906 },
+]
+
+[[package]]
+name = "xpcscope"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "frida" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "frida", specifier = ">=17.2.15" }]

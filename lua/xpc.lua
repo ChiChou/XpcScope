@@ -1,4 +1,4 @@
-json = require "json/json.lua"
+json = require "json.lua"
 
 local xpc = Proto("xpc", "XPC")
 local binary = ProtoField.bytes("xpc.data", "xpc_data")

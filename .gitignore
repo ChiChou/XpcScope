@@ -1,0 +1,17 @@
+/node_modules/
+_agent.js
+
+target.py
+
+.ccls-cache/
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
