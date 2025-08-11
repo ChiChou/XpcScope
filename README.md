@@ -36,11 +36,11 @@ An example script is provided in `target.example.py`
 With venv activated:
 
 ```shell
-xpcscope target.py | wireshark -k -i -
+xpcscope target | wireshark -k -i -
 ```
 
 Or if you have [uv](https://docs.astral.sh/uv/)
 
 ```shell
-uv run xpcscope target.py | wireshark -k -i -
+uv run xpcscope target | wireshark -k -i -
 ```
