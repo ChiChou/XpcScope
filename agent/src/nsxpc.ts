@@ -158,6 +158,9 @@ export function start() {
         }
 
         const conn = new ObjC.Object(objc_getAssociatedObject(args[0], KEY));
+
+        if (typeof conn.serviceName !== "function") return;
+
         const json = {
           type: "nsxpc",
           sel,
@@ -167,7 +170,7 @@ export function start() {
 
         send({
           event: "sent",
-          name: conn.serviceName().toString(),
+          name: conn.serviceName() + "",
           peer: conn.processIdentifier(),
           direction: ">",
           message: json,
