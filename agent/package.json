@@ -1,0 +1,20 @@
+{
+  "name": "agent",
+  "version": "1.0.0",
+  "description": "Frida agent written in TypeScript",
+  "private": true,
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "frida-compile src/index.ts -o _agent.js -c",
+    "watch": "frida-compile src/index.ts -o _agent.js -w"
+  },
+  "devDependencies": {
+    "@types/frida-gum": "^19.0.0",
+    "@types/node": "^18.14.0"
+  },
+  "dependencies": {
+    "frida-objc-bridge": "^8.0.5"
+  }
+}
