@@ -2,29 +2,19 @@
 
 Yet another xpc sniffer
 
-## dependencies
+![Screenshot](assets/screenshot.png)
 
-Written in python, should support Windows and Linux as well.
-
-* python >=3.10
-
-Here is the setup instructions on macOS.
+## Setup
 
 ```shell
-brew install python3                # requires python >=3.10
-python3 -m venv .venv               # initialize virtual environment
-source .venv/bin/activate           # active venv shell
-pip install -e .                    # install all dependencies
+git clone --recurse-submodules https://github.com/ChiChou/XpcScope.git
 ```
 
-Build frida agent:
-
 ```shell
-make prepare
-
-# on Windows or systems without make, manually type the following commands from Makefile
-#
-# frida-compile agent\src\index.ts > agent\_agent.js
+python3 -m venv .venv                                 # initialize virtual environment
+source .venv/bin/activate                             # active venv shell
+pip install -e .                                      # install all dependencies
+frida-compile agent/src/index.ts -o agent/_agent.js   # build frida agent
 ```
 
 ## Run
