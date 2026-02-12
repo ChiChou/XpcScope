@@ -36,8 +36,8 @@ function visit(elem, parent, data_storage)
         local data = data_storage(offset, length)
         parent:add(binary, data)
     else
-        if elem["value"] then
-            parent:add(elem["value"])
+        if elem["value"] ~= nil then
+            parent:add(tostring(elem["value"]))
         end
     end
 end
@@ -54,7 +54,11 @@ function xpc.dissector(buffer, pinfo, tree)
     visit(root, msg, data)
 
     pinfo.cols.protocol = "XPC"
-    pinfo.cols.info = root["description"]
+
+    local direction = info["direction"] or ""
+    local name = info["name"] or ""
+    local peer = info["peer"] or ""
+    pinfo.cols.info = direction .. " " .. name .. " (pid " .. tostring(peer) .. ") " .. desc(root)
 
     local bt = info["backtrace"]
     if bt then
