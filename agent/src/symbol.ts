@@ -87,10 +87,21 @@ const strcmp = new NativeFunction(getGlobalExport("strcmp"), "int", [
   "pointer",
 ]);
 
-function findSymbolInDyld(module: string, symbol: string) {
-  let value = NULL;
-  const symbolString = Memory.allocUtf8String(symbol);
+// int fnmatch(const char *pattern, const char *string, int flags);
+const fnmatch = new NativeFunction(getGlobalExport("fnmatch"), "int", [
+  "pointer",
+  "pointer",
+  "int",
+]);
 
+/**
+ * Iterate over nlist symbols in the dyld shared cache for a given module.
+ * @param visitor called for each symbol; return true to stop iteration.
+ */
+function forEachSymbolInDyld(
+  module: string,
+  visitor: (symbolName: NativePointer, value: UInt64) => boolean,
+) {
   const {
     dyldForEachInstalledSharedCache,
     dyldSharedCacheForEachImage,
@@ -134,8 +145,7 @@ function findSymbolInDyld(module: string, symbol: string) {
                       const n_strx = nlist.readU32();
                       const n_value = nlist.add(8).readU64();
                       const symbolName = stringTable.add(n_strx);
-                      if (strcmp(symbolName, symbolString) == 0) {
-                        value = new NativePointer(n_value);
+                      if (visitor(symbolName, n_value)) {
                         break;
                       }
                     }
@@ -148,8 +158,38 @@ function findSymbolInDyld(module: string, symbol: string) {
       },
     }),
   );
+}
+
+function findSymbolInDyld(module: string, symbol: string) {
+  let value = NULL;
+  const symbolString = Memory.allocUtf8String(symbol);
+
+  forEachSymbolInDyld(module, (symbolName, n_value) => {
+    if (strcmp(symbolName, symbolString) == 0) {
+      value = new NativePointer(n_value);
+      return true;
+    }
+    return false;
+  });
 
   return value;
+}
+
+function globSymbolsInDyld(module: string, pattern: string) {
+  const results: Array<{ name: string; address: NativePointer }> = [];
+  const patternString = Memory.allocUtf8String(pattern);
+
+  forEachSymbolInDyld(module, (symbolName, n_value) => {
+    if (fnmatch(patternString, symbolName, 0) === 0) {
+      results.push({
+        name: symbolName.readUtf8String()!,
+        address: new NativePointer(n_value),
+      });
+    }
+    return false;
+  });
+
+  return results;
 }
 
 export function find(module: string, symbol: string) {
@@ -163,5 +203,10 @@ export function find(module: string, symbol: string) {
 }
 
 export function glob(module: string, pattern: string) {
-  throw new Error("not implemented");
+  try {
+    return globSymbolsInDyld(module, pattern);
+  } catch (e) {
+    console.warn("Error globbing symbols in dyld cache:", e);
+    return DebugSymbol.findFunctionsMatching(pattern);
+  }
 }
