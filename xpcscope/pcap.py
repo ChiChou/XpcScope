@@ -11,7 +11,7 @@ class Pcap:
         self.output = output
 
     def write_header(self):
-        ETHERNET = 1
+        DLT_USER0 = 147
 
         FMT = "@ I H H i I I I "
         PCAP_MAGICAL_NUMBER = 0xA1B23C4D
@@ -20,7 +20,7 @@ class Pcap:
         PCAP_LOCAL_CORECTIN = 0
         PCAP_ACCUR_TIMSTAMP = 0
         PCAP_MAX_LENGTH_CAP = 65535
-        PCAP_DATA_LINK_TYPE = ETHERNET
+        PCAP_DATA_LINK_TYPE = DLT_USER0
 
         pcap_header = struct.pack(
             FMT,
@@ -40,8 +40,7 @@ class Pcap:
         sec = int(ts)
         ns = int((ts - sec) * 1_000_000_000)
 
-        arp_header = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x07'
-        payload_len = len(arp_header) + len(packet)
+        payload_len = len(packet)
 
         FMT = "@ I I I I"
         pcap_packet = struct.pack(
@@ -54,7 +53,6 @@ class Pcap:
 
         try:
             self.output.write(pcap_packet)
-            self.output.write(arp_header)
             self.output.write(packet)
             self.output.flush()
         except BrokenPipeError:

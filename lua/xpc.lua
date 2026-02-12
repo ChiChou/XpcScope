@@ -56,9 +56,20 @@ function xpc.dissector(buffer, pinfo, tree)
     pinfo.cols.protocol = "XPC"
 
     local direction = info["direction"] or ""
-    local name = info["name"] or ""
-    local peer = info["peer"] or ""
-    pinfo.cols.info = direction .. " " .. name .. " (pid " .. tostring(peer) .. ") " .. desc(root)
+    local name = info["name"] or "?"
+    local peer = info["peer"]
+    local label = name
+    if peer then
+        label = label .. " (" .. tostring(peer) .. ")"
+    end
+
+    if direction == ">" then
+        pinfo.cols.dst = label
+    elseif direction == "<" then
+        pinfo.cols.src = label
+    end
+
+    pinfo.cols.info = direction .. " " .. desc(root)
 
     local bt = info["backtrace"]
     if bt then
@@ -78,12 +89,9 @@ frida_log_protocol.fields = {
 }
 
 function frida_log_protocol.dissector(buffer, pinfo, tree)
-    pinfo.src = Address.ip('127.0.0.1')
-    pinfo.dst = Address.ip('127.0.0.1')
-
     local subtree = tree:add(frida_log_protocol, buffer(), "Frida Log Protocol Data")
     xpc.dissector(buffer():tvb(), pinfo, subtree)
 end
 
-local tcp_port = DissectorTable.get("ethertype")
-tcp_port:add(0x807, frida_log_protocol)
+local wtap_encap = DissectorTable.get("wtap_encap")
+wtap_encap:add(wtap.USER0, frida_log_protocol)
