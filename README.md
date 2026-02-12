@@ -14,8 +14,10 @@ git clone --recurse-submodules https://github.com/ChiChou/XpcScope.git
 python3 -m venv .venv                                 # initialize virtual environment
 source .venv/bin/activate                             # active venv shell
 pip install -e .                                      # install all dependencies
-frida-compile agent/src/index.ts -o agent/_agent.js   # build frida agent
+cd agent && npm install && npm run build              # install frida agent dependencies and build the agent
 ```
+
+Now I addded a `./setup.sh` for convenience, you can simply run it to do all the above steps.
 
 ## Run
 
