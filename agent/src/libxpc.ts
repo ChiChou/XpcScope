@@ -1,5 +1,7 @@
 import ObjC from "frida-objc-bridge";
 
+import { find } from "./symbol.js";
+
 const libxpc = Process.findModuleByName("libxpc.dylib");
 
 if (!libxpc) throw new Error("libxpc.dylib not found");
@@ -332,9 +334,7 @@ class LogSerializer {
 }
 
 export async function start() {
-  const dispacher = DebugSymbol.getFunctionByName(
-    "_xpc_connection_call_event_handler",
-  );
+  const dispacher = find("libxpc.dylib", "_xpc_connection_call_event_handler");
 
   Interceptor.attach(dispacher, {
     onEnter(args) {
