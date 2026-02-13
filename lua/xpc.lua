@@ -107,7 +107,7 @@ function xpc.dissector(buffer, pinfo, tree)
         pinfo.cols.src = label
     end
 
-    pinfo.cols.info = direction .. " " .. desc(root)
+    pinfo.cols.info = root["description"]
 
     local bt = info["backtrace"]
     if bt then
