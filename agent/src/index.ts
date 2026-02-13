@@ -24,8 +24,8 @@ rpc.exports = {
   },
   listeners,
   start() {
-    captureXPC();
-    // captureNSXPC();
+    // captureXPC();
+    captureNSXPC();
   },
   stop,
 };

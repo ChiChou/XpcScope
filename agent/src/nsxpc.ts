@@ -1,19 +1,5 @@
 import ObjC from "frida-objc-bridge";
-
-const libobjc = Process.getModuleByName("libobjc.A.dylib");
-const objc_getAssociatedObject = new NativeFunction(
-  libobjc.findExportByName("objc_getAssociatedObject")!,
-  "pointer",
-  ["pointer", "pointer"],
-);
-const objc_setAssociatedObject = new NativeFunction(
-  libobjc.findExportByName("objc_setAssociatedObject")!,
-  "void",
-  ["pointer", "pointer", "pointer", "int"],
-);
-
-const KEY = Memory.allocUtf8String("xpcscope.connection");
-const OBJC_ASSOCIATION_RETAIN = 0o1401;
+import { find, glob } from "./symbol.js";
 
 // make sure the Foundation.framework is loaded
 ObjC.classes.NSBundle.bundleWithPath_(
@@ -31,9 +17,11 @@ export function listeners() {
 }
 
 export function start() {
-  const invoker = DebugSymbol.findFunctionsMatching(
+  const invoker = find(
+    "Foundation",
     "__NSXPCCONNECTION_IS_CALLING_OUT_TO_EXPORTED_OBJECT__",
-  ).pop()!;
+  );
+
   Interceptor.attach(invoker, {
     onEnter(args) {
       const invocation = new ObjC.Object(args[0]);
@@ -82,11 +70,11 @@ export function start() {
     },
   });
 
-  for (const func of DebugSymbol.findFunctionsMatching(
+  for (const func of glob(
+    "Foundation",
     "__NSXPCCONNECTION_IS_CALLING_OUT_TO_EXPORTED_OBJECT_S*",
   )) {
     const plain = func.strip();
-    if (Process.findModuleByAddress(plain)?.name !== "Foundation") continue;
 
     Interceptor.attach(plain, {
       onEnter(args) {
@@ -129,22 +117,15 @@ export function start() {
         this.conn = args[0];
       },
       onLeave(retValue) {
-        objc_setAssociatedObject(
-          retValue,
-          KEY,
-          this.conn,
-          OBJC_ASSOCIATION_RETAIN,
-        );
+        ObjC.bind(retValue, { conn: this.conn });
       },
     });
   }
 
-  const senders = DebugSymbol.findFunctionsMatching(
-    "_NSXPCDistantObjectSimpleMessageSend*",
-  );
+  const senders = glob("Foundation", "_NSXPCDistantObjectSimpleMessageSend*");
   for (const func of senders) {
     const { name } = DebugSymbol.fromAddress(func);
-    if (!name) continue; // not possible
+    if (!name) continue;
     const nargs = parseInt(name.charAt(name.length - 1), 10);
 
     Interceptor.attach(func, {
@@ -157,7 +138,9 @@ export function start() {
           formattedArgs.push(arg.toString(16));
         }
 
-        const conn = new ObjC.Object(objc_getAssociatedObject(args[0], KEY));
+        const conn = new ObjC.Object(
+          ObjC.getBoundData(args[0]).conn as NativePointer,
+        );
 
         if (typeof conn.serviceName !== "function") return;
 

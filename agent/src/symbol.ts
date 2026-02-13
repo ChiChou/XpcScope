@@ -64,11 +64,44 @@ function getDyldApi() {
     ["pointer", "pointer"],
   );
 
+  // the following APIs are always present
+
+  // uint32_t _dyld_image_count(void);
+  const _dyld_image_count = new NativeFunction(
+    getGlobalExport("_dyld_image_count"),
+    "uint32",
+    [],
+  );
+
+  // const _dyld_get_image_name = new NativeFunction(
+  //   getGlobalExport("_dyld_get_image_name"),
+  //   "pointer",
+  //   ["uint32"],
+  // );
+
+  // uint32_t _dyld_image_count(void);
+  const _dyld_get_image_header = new NativeFunction(
+    getGlobalExport("_dyld_get_image_header"),
+    "pointer",
+    ["uint32"],
+  );
+
+  // int64_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
+  const _dyld_get_image_vmaddr_slide = new NativeFunction(
+    getGlobalExport("_dyld_get_image_vmaddr_slide"),
+    "int64",
+    ["uint32"],
+  );
+
   return {
     dyldForEachInstalledSharedCache,
     dyldSharedCacheForEachImage,
     dyldImageGetInstallname,
     dyldImageLocalNlistContent4Symbolication,
+
+    _dyld_image_count,
+    _dyld_get_image_header,
+    _dyld_get_image_vmaddr_slide,
   };
 }
 
@@ -93,6 +126,26 @@ const fnmatch = new NativeFunction(getGlobalExport("fnmatch"), "int", [
   "pointer",
   "int",
 ]);
+
+function getSlide(module: string) {
+  const {
+    _dyld_image_count,
+    _dyld_get_image_header,
+    _dyld_get_image_vmaddr_slide,
+  } = getDyldApi();
+
+  const moduleInfo = Process.getModuleByName(module);
+  for (let i = 0; i < _dyld_image_count(); i++) {
+    // const name = _dyld_get_image_name(i).readUtf8String()!;
+    const header = _dyld_get_image_header(i);
+    if (moduleInfo.base.equals(header)) {
+      const slide = _dyld_get_image_vmaddr_slide(i);
+      return slide;
+    }
+  }
+
+  throw new Error(`module ${module} not found in current process`);
+}
 
 /**
  * Iterate over nlist symbols in the dyld shared cache for a given module.
@@ -162,7 +215,7 @@ function forEachSymbolInDyld(
 
 function findSymbolInDyld(module: string, symbol: string) {
   let value = NULL;
-  const symbolString = Memory.allocUtf8String(symbol);
+  const symbolString = Memory.allocUtf8String("_" + symbol);
 
   forEachSymbolInDyld(module, (symbolName, n_value) => {
     if (strcmp(symbolName, symbolString) == 0) {
@@ -172,24 +225,28 @@ function findSymbolInDyld(module: string, symbol: string) {
     return false;
   });
 
-  return value;
+  if (value.isNull())
+    throw new Error(
+      `symbol ${symbol} not found in dyld cache for module ${module}`,
+    );
+
+  const slide = getSlide(module);
+  return value.add(slide);
 }
 
 function globSymbolsInDyld(module: string, pattern: string) {
-  const results: Array<{ name: string; address: NativePointer }> = [];
-  const patternString = Memory.allocUtf8String(pattern);
+  const results: NativePointer[] = [];
+  const patternString = Memory.allocUtf8String("_" + pattern);
 
   forEachSymbolInDyld(module, (symbolName, n_value) => {
     if (fnmatch(patternString, symbolName, 0) === 0) {
-      results.push({
-        name: symbolName.readUtf8String()!,
-        address: new NativePointer(n_value),
-      });
+      results.push(new NativePointer(n_value));
     }
     return false;
   });
 
-  return results;
+  const slide = getSlide(module);
+  return results.map((ptr) => ptr.add(slide));
 }
 
 export function find(module: string, symbol: string) {
@@ -207,6 +264,7 @@ export function glob(module: string, pattern: string) {
     return globSymbolsInDyld(module, pattern);
   } catch (e) {
     console.warn("Error globbing symbols in dyld cache:", e);
+    // fallback to slow
     return DebugSymbol.findFunctionsMatching(pattern);
   }
 }
