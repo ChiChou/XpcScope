@@ -1,6 +1,7 @@
 import ObjC from "frida-objc-bridge";
 
 import { find } from "./symbol.js";
+import { bt } from "./utils.js";
 
 const libxpc = Process.findModuleByName("libxpc.dylib");
 
@@ -384,9 +385,7 @@ export async function start() {
         const serializer = new LogSerializer(msg);
         const [json, data] = serializer.serialize();
 
-        const backtrace = Thread.backtrace(this.context, Backtracer.ACCURATE)
-          .map(DebugSymbol.fromAddress)
-          .map(String);
+        const backtrace = bt(this.context);
 
         send(
           {

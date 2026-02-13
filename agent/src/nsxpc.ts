@@ -1,12 +1,13 @@
 import ObjC from "frida-objc-bridge";
 import { find, glob } from "./symbol.js";
+import { bt } from "./utils.js";
 
 // make sure the Foundation.framework is loaded
 ObjC.classes.NSBundle.bundleWithPath_(
   "/System/Library/Frameworks/Foundation.framework",
 ).load();
 
-const { NSXPCListener, NSXPCInterface, NSXPCConnection } = ObjC.classes;
+const { NSXPCListener } = ObjC.classes;
 
 function formatArgs(
   args: InvocationArguments,
@@ -147,12 +148,15 @@ export function start() {
           description: `${clazz} ${sel}`,
         };
 
+        const backtrace = bt(this.context);
+
         send({
           event: "sent",
           name: conn.serviceName() + "",
           peer: conn.processIdentifier(),
           direction: ">",
           message: json,
+          backtrace,
         });
       },
     });
