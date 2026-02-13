@@ -37,7 +37,7 @@ export function start() {
   const invoker = find(
     "Foundation",
     "__NSXPCCONNECTION_IS_CALLING_OUT_TO_EXPORTED_OBJECT__",
-  );
+  ).strip();
 
   Interceptor.attach(invoker, {
     onEnter(args) {
@@ -126,8 +126,8 @@ export function start() {
 
     Interceptor.attach(func, {
       onEnter(args) {
-        const sel = ObjC.selectorAsString(args[1]);
         const proxy = new ObjC.Object(args[0]);
+        const sel = ObjC.selectorAsString(args[1]);
         const clazz = proxy.$className;
 
         const signature = proxy.methodSignatureForSelector_(
@@ -135,11 +135,19 @@ export function start() {
         ) as ObjC.Object;
         const beautifiedArgs = formatArgs(args, signature);
 
-        const conn = new ObjC.Object(
-          ObjC.getBoundData(args[0]).conn as NativePointer,
-        );
+        let name = "";
+        let peer = 0;
 
-        if (typeof conn.serviceName !== "function") return;
+        {
+          const { conn } = ObjC.getBoundData(args[0]);
+          if (conn) {
+            const connObj = new ObjC.Object(conn as NativePointer);
+            if (typeof connObj.serviceName === "function") {
+              name = connObj.serviceName() + "";
+              peer = connObj.processIdentifier();
+            }
+          }
+        }
 
         const json = {
           type: "nsxpc",
@@ -152,8 +160,8 @@ export function start() {
 
         send({
           event: "sent",
-          name: conn.serviceName() + "",
-          peer: conn.processIdentifier(),
+          name,
+          peer,
           direction: ">",
           message: json,
           backtrace,
