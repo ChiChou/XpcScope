@@ -286,11 +286,24 @@ class LogSerializer {
         } else if (type === "data") {
           const base = xpc_data_get_bytes_ptr(xpcObj);
           const length = xpc_data_get_length(xpcObj).toNumber();
-          const data = base.readByteArray(length)!;
-          const offset = this.appendData(data);
-          return { description, type, offset, length, base } as XPCData;
+
+          let offset = 0;
+          if (base) {
+            const data = base.readByteArray(length);
+            if (data) {
+              offset = this.appendData(data);
+            }
+          }
+
+          return {
+            description,
+            type,
+            offset,
+            length,
+            base,
+          } as XPCData;
         } else if (type === "uuid") {
-          const p = xpc_uuid_get_bytes(xpcObj);
+          const p = xpc_uuid_get_bytes(xpcObj); // will never not null for uuid
           const data = p.readByteArray(16)!;
           const offset = this.appendData(data);
           const value = [...new Uint8Array(data)]
