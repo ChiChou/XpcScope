@@ -49,7 +49,6 @@ The dissector registers the following fields for filtering:
 | `xpc.peer` | int | Remote peer PID |
 | `xpc.msgtype` | string | `dictionary`, `nsxpc`, etc. |
 | `xpc.sel` | string | NSXPC selector (NSXPC only) |
-| `xpc.data` | bytes | Binary data blobs |
 
 Examples:
 
