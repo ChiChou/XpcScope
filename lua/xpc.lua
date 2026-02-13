@@ -50,10 +50,27 @@ function xpc.dissector(buffer, pinfo, tree)
 
     local info = json.decode(json_str)
     local root = info["message"]
-    local msg = tree:add("Message" .. ": " .. desc(root))
-    visit(root, msg, data)
 
-    pinfo.cols.protocol = "XPC"
+    if root["type"] == "nsxpc" then
+        local sel = root["sel"] or ""
+        local msg = tree:add("NSXPC: " .. sel)
+        local args = root["args"]
+        if args then
+            local parts = {}
+            for part in sel:gmatch("([^:]+)") do
+                table.insert(parts, part)
+            end
+            for i, arg in ipairs(args) do
+                local param = parts[i] or tostring(i)
+                msg:add(param .. ": " .. tostring(arg))
+            end
+        end
+        pinfo.cols.protocol = "NSXPC"
+    else
+        local msg = tree:add("Message: " .. desc(root))
+        visit(root, msg, data)
+        pinfo.cols.protocol = "XPC"
+    end
 
     local direction = info["direction"] or ""
     local name = info["name"] or "?"

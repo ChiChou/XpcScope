@@ -126,16 +126,25 @@ export function start() {
   for (const func of senders) {
     const { name } = DebugSymbol.fromAddress(func);
     if (!name) continue;
-    const nargs = parseInt(name.charAt(name.length - 1), 10);
 
     Interceptor.attach(func, {
       onEnter(args) {
         const sel = ObjC.selectorAsString(args[1]);
         const formattedArgs: string[] = [];
-        const clazz = new ObjC.Object(args[0]).$className;
+        const proxy = new ObjC.Object(args[0]);
+        const clazz = proxy.$className;
+
+        const signature = proxy.methodSignatureForSelector_(
+          args[1],
+        ) as ObjC.Object;
+        const nargs = signature.numberOfArguments();
         for (let i = 2; i < nargs; i++) {
           const arg = args[i];
-          formattedArgs.push(arg.toString(16));
+          const t = signature.getArgumentTypeAtIndex_(i);
+          const wrapped = t.toString().startsWith("@")
+            ? new ObjC.Object(arg)
+            : arg;
+          formattedArgs.push(wrapped.toString());
         }
 
         const conn = new ObjC.Object(
