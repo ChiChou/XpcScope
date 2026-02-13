@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Callable
 
 import json
+import signal
 import sys
 import os
 import shutil
@@ -53,14 +54,16 @@ def tool(get_target: Callable[[], frida.core.Session]):
             joint = metadata.encode('utf8') + not_null_data
             ok = pcap.write(joint, len(not_null_data))
             if not ok:
-                sys.exit(1)
+                os.kill(os.getpid(), signal.SIGINT)
+                return
 
         elif message['type'] == 'error' and 'description' in message and \
                 'unable to find module \'libobjc.A.dylib\'' in message['description']:
             sys.stderr.write(
                 'Script successfully injected but the target does not have ObjC runtine.\n')
             sys.stderr.write('You are likely injecting to a wrong platform binary.\n')
-            sys.exit(1)
+            os.kill(os.getpid(), signal.SIGINT)
+            return
         else:
             sys.stderr.write(f'{message}\n')
 
