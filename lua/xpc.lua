@@ -1,9 +1,16 @@
 json = require "json/json"
 
 local xpc = Proto("xpc", "XPC")
-local binary = ProtoField.bytes("xpc.data", "xpc_data")
 
-xpc.fields = { binary }
+local f_data      = ProtoField.bytes("xpc.data", "Data")
+local f_name      = ProtoField.string("xpc.name", "Service Name")
+local f_direction = ProtoField.string("xpc.direction", "Direction")
+local f_event     = ProtoField.string("xpc.event", "Event")
+local f_peer      = ProtoField.int32("xpc.peer", "Peer PID", base.DEC)
+local f_sel       = ProtoField.string("xpc.sel", "Selector")
+local f_msgtype   = ProtoField.string("xpc.msgtype", "Message Type")
+
+xpc.fields = { f_data, f_name, f_direction, f_event, f_peer, f_sel, f_msgtype }
 
 function desc(node)
     local description = node["description"]
@@ -34,7 +41,7 @@ function visit(elem, parent, data_storage)
         local offset = elem["offset"]
         local length = elem["length"]
         local data = data_storage(offset, length)
-        parent:add(binary, data)
+        parent:add(f_data, data)
     else
         if elem["value"] ~= nil then
             parent:add(tostring(elem["value"]))
@@ -45,14 +52,30 @@ end
 function xpc.dissector(buffer, pinfo, tree)
     local raw_data_len = pinfo.len - pinfo.caplen
     local breakpoint = buffer:len() - raw_data_len
-    local json_str = buffer(0, breakpoint):string()
+    local json_range = buffer(0, breakpoint)
+    local json_str = json_range:string()
     local data = buffer(breakpoint, raw_data_len)
 
     local info = json.decode(json_str)
     local root = info["message"]
+    local direction = info["direction"] or ""
+    local name = info["name"] or "?"
+    local peer = info["peer"]
+    local event = info["event"] or ""
+    local msgtype = root["type"] or "xpc"
+
+    -- filterable metadata
+    tree:add(f_direction, json_range, direction)
+    tree:add(f_event, json_range, event)
+    tree:add(f_name, json_range, name)
+    tree:add(f_msgtype, json_range, msgtype)
+    if peer then
+        tree:add(f_peer, json_range, peer)
+    end
 
     if root["type"] == "nsxpc" then
         local sel = root["sel"] or ""
+        tree:add(f_sel, json_range, sel)
         local msg = tree:add("NSXPC: " .. sel)
         local args = root["args"]
         if args then
@@ -72,9 +95,7 @@ function xpc.dissector(buffer, pinfo, tree)
         pinfo.cols.protocol = "XPC"
     end
 
-    local direction = info["direction"] or ""
-    local name = info["name"] or "?"
-    local peer = info["peer"]
+    -- columns
     local label = name
     if peer then
         label = label .. " (" .. tostring(peer) .. ")"
@@ -97,13 +118,7 @@ function xpc.dissector(buffer, pinfo, tree)
     end
 end
 
-local source_pid          = ProtoField.int32("xpc.sourcepid", "Source PID", base.DEC)
-local dest_pid            = ProtoField.int32("xpc.destpid", "Destination PID", base.DEC)
-
-frida_log_protocol        = Proto("Frida", "Frida Log Protocol")
-frida_log_protocol.fields = {
-    source_pid, dest_pid
-}
+frida_log_protocol = Proto("Frida", "Frida Log Protocol")
 
 function frida_log_protocol.dissector(buffer, pinfo, tree)
     local subtree = tree:add(frida_log_protocol, buffer(), "Frida Log Protocol Data")

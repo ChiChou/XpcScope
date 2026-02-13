@@ -36,3 +36,28 @@ Or if you have [uv](https://docs.astral.sh/uv/)
 ```shell
 uv run xpcscope target | wireshark -k -i -
 ```
+
+## Wireshark Display Filters
+
+The dissector registers the following fields for filtering:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `xpc.name` | string | XPC service name |
+| `xpc.direction` | string | `>` (sent) or `<` (received) |
+| `xpc.event` | string | `sent` or `received` |
+| `xpc.peer` | int | Remote peer PID |
+| `xpc.msgtype` | string | `dictionary`, `nsxpc`, etc. |
+| `xpc.sel` | string | NSXPC selector (NSXPC only) |
+| `xpc.data` | bytes | Binary data blobs |
+
+Examples:
+
+```
+xpc.name == "com.apple.windowserver"
+xpc.name contains "apple"
+xpc.direction == ">"
+xpc.peer == 372
+xpc.msgtype == "nsxpc"
+xpc.sel contains "fetch"
+```
