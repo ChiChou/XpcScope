@@ -44,7 +44,7 @@ The dissector registers the following fields for filtering:
 | Field | Type | Description |
 |-------|------|-------------|
 | `xpc.name` | string | XPC service name |
-| `xpc.direction` | string | `>` (sent) or `<` (received) |
+| `xpc.dir` | string | `>` (sent) or `<` (received) |
 | `xpc.event` | string | `sent` or `received` |
 | `xpc.peer` | int | Remote peer PID |
 | `xpc.msgtype` | string | `dictionary`, `nsxpc`, etc. |
@@ -56,7 +56,7 @@ Examples:
 ```
 xpc.name == "com.apple.windowserver"
 xpc.name contains "apple"
-xpc.direction == ">"
+xpc.dir == ">"
 xpc.peer == 372
 xpc.msgtype == "nsxpc"
 xpc.sel contains "fetch"

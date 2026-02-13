@@ -4,7 +4,7 @@ local xpc = Proto("xpc", "XPC")
 
 local f_data      = ProtoField.bytes("xpc.data", "Data")
 local f_name      = ProtoField.string("xpc.name", "Service Name")
-local f_direction = ProtoField.string("xpc.direction", "Direction")
+local f_direction = ProtoField.string("xpc.dir", "Direction")
 local f_event     = ProtoField.string("xpc.event", "Event")
 local f_peer      = ProtoField.int32("xpc.peer", "Peer PID", base.DEC)
 local f_sel       = ProtoField.string("xpc.sel", "Selector")
@@ -58,7 +58,7 @@ function xpc.dissector(buffer, pinfo, tree)
 
     local info = json.decode(json_str)
     local root = info["message"]
-    local direction = info["direction"] or ""
+    local direction = info["dir"] or ""
     local name = info["name"] or "?"
     local peer = info["peer"]
     local event = info["event"] or ""

@@ -93,7 +93,7 @@ export function start() {
             event: "received",
             // name,
             // peer: pid,
-            direction: "<",
+            dir: "<",
             message: json,
           });
         },
@@ -132,7 +132,7 @@ export function start() {
           event: "received",
           // name,
           // peer: pid,
-          direction: "<",
+          dir: "<",
           message: json,
         });
       },
@@ -192,7 +192,7 @@ export function start() {
           event: "sent",
           name,
           peer,
-          direction: ">",
+          dir: ">",
           message: json,
           backtrace,
         });
