@@ -1,8 +1,8 @@
 import ObjC from "frida-objc-bridge";
 
 import { jobs } from "./sm.js";
-import { listeners, start as captureNSXPC } from "./nsxpc.js";
-import { start as captureXPC } from "./libxpc.js";
+import { listeners, start as logNSXPC } from "./nsxpc.js";
+import { start as logXPC } from "./libxpc.js";
 
 if (!ObjC.available) throw new Error("Objective-C runtime is not available");
 
@@ -24,8 +24,8 @@ rpc.exports = {
   },
   listeners,
   start() {
-    // captureXPC();
-    captureNSXPC();
+    logXPC();
+    logNSXPC();
   },
   stop,
 };
