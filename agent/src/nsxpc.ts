@@ -24,6 +24,30 @@ function formatArgs(
   return result;
 }
 
+function formatDescription(
+  self: NativePointer,
+  clazz: string,
+  sel: string,
+  args: InvocationArguments,
+): string {
+  const parts = sel.split(":");
+  const nparams = sel.includes(":") ? parts.length - 1 : 0;
+
+  function* gen() {
+    yield `<${clazz} ${self}>`;
+    if (nparams === 0) {
+      yield ` ${sel}`;
+      return;
+    }
+    for (let i = 0; i < nparams; i++) {
+      if (i === 0) yield " ";
+      yield `${parts[i] || ""}:${args[i + 2]}`;
+    }
+  }
+
+  return [...gen()].join("");
+}
+
 export function listeners() {
   return ObjC.chooseSync(NSXPCListener).map((listener) => {
     return {
@@ -53,13 +77,16 @@ export function start() {
 
       this.hook = Interceptor.attach(imp, {
         onEnter(innerArgs) {
-          const beautifiedArgs = formatArgs(innerArgs, signature);
-
           const json = {
             type: "nsxpc",
             sel,
-            args: beautifiedArgs,
-            description: sel,
+            args: formatArgs(innerArgs, signature),
+            description: formatDescription(
+              innerArgs[0],
+              target.$className,
+              sel,
+              innerArgs,
+            ),
           };
 
           send({
@@ -88,13 +115,17 @@ export function start() {
         const targetClass = new ObjC.Object(args[0]);
         const sel = ObjC.selectorAsString(args[1]);
         const signature = targetClass.methodSignatureForSelector_(args[1]);
-        const formattedArgs = formatArgs(args, signature);
 
         const json = {
           type: "nsxpc",
           sel,
-          args: formattedArgs,
-          description: sel,
+          args: formatArgs(args, signature),
+          description: formatDescription(
+            args[0],
+            targetClass.$className,
+            sel,
+            args,
+          ),
         };
 
         send({
@@ -133,7 +164,6 @@ export function start() {
         const signature = proxy.methodSignatureForSelector_(
           args[1],
         ) as ObjC.Object;
-        const beautifiedArgs = formatArgs(args, signature);
 
         let name = "";
         let peer = 0;
@@ -152,8 +182,8 @@ export function start() {
         const json = {
           type: "nsxpc",
           sel,
-          args: beautifiedArgs,
-          description: `${clazz} ${sel}`,
+          args: formatArgs(args, signature),
+          description: formatDescription(args[0], clazz, sel, args),
         };
 
         const backtrace = bt(this.context);

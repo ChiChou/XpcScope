@@ -75,7 +75,7 @@ function xpc.dissector(buffer, pinfo, tree)
 
     if root["type"] == "nsxpc" then
         local sel = root["sel"] or ""
-        tree:add(f_sel, json_range, sel)
+        tree:add(f_sel, json_range, root["description"])
         local msg = tree:add("NSXPC: " .. sel)
         local args = root["args"]
         if args then
