@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # Install Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: agent/package-lock.json
+
+      # Install Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Install Python package
+      - name: Install XpcScope
+        run: |
+          python -m pip install --upgrade pip
+          pip install frida-tools
+          pip install -e .
+
+      # Build the Frida agent
+      - name: Build Frida agent
+        working-directory: agent
+        run: |
+          npm install
+          npm run build
+
+      # Verify output
+      - name: Validate and move agent
+        run: |
+          test -f agent/_agent.js || (echo "_agent.js not found" && exit 1)
+          ls -lh agent/_agent.js
+          mv agent/_agent.js ./_agent.js
+
+      # Prepare source bundle
+      - name: Prepare release bundle
+        run: |
+          mkdir -p release/XpcScope
+          rsync -a --exclude .git --exclude .github ./ release/XpcScope/
+          cd release
+          zip -r xpcscope-src.zip XpcScope
+
+      # Create GitHub release
+      - name: Create release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: XpcScope ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          files: |
+            release/XpcScope.zip
